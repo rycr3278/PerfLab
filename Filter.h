@@ -11,13 +11,13 @@ class Filter {
 
 public:
   Filter(int _dim);
-  int get(int r, int c);
+  inline int get(int r, int c) const { return data[r * dim + c]; }
   void set(int r, int c, int value);
 
-  int getDivisor();
+  inline int getDivisor() const { return divisor; }
   void setDivisor(int value);
 
-  int getSize();
+  inline int getSize() const { return dim; }
   void info();
 };
 

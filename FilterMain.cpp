@@ -92,51 +92,58 @@ readFilter(string filename)
 }
 
 
-double
-applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output)
-{
-
-  long long cycStart, cycStop;
-
-  cycStart = rdtscll();
-
-  output -> width = input -> width;
-  output -> height = input -> height;
-
-
-  for(int col = 1; col < (input -> width) - 1; col = col + 1) {
-    for(int row = 1; row < (input -> height) - 1 ; row = row + 1) {
-      for(int plane = 0; plane < 3; plane++) {
-
-	output -> color[plane][row][col] = 0;
-
-	for (int j = 0; j < filter -> getSize(); j++) {
-	  for (int i = 0; i < filter -> getSize(); i++) {	
-	    output -> color[plane][row][col]
-	      = output -> color[plane][row][col]
-	      + (input -> color[plane][row + i - 1][col + j - 1] 
-		 * filter -> get(i, j) );
-	  }
-	}
-	
-	output -> color[plane][row][col] = 	
-	  output -> color[plane][row][col] / filter -> getDivisor();
-
-	if ( output -> color[plane][row][col]  < 0 ) {
-	  output -> color[plane][row][col] = 0;
-	}
-
-	if ( output -> color[plane][row][col]  > 255 ) { 
-	  output -> color[plane][row][col] = 255;
-	}
-      }
-    }
-  }
-
-  cycStop = rdtscll();
-  double diff = cycStop - cycStart;
-  double diffPerPixel = diff / (output -> width * output -> height);
-  fprintf(stderr, "Took %f cycles to process, or %f cycles per pixel\n",
-	  diff, diff / (output -> width * output -> height));
-  return diffPerPixel;
+// inline function to check if RGB vals are legal
+inline int clamp(int value) {
+    if (value < 0) return 0;
+    if (value > 255) return 255;
+    return value;
 }
+
+double applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output) {
+    long long cycStart, cycStop;
+    cycStart = rdtscll();
+
+    output->width = input->width;
+    output->height = input->height;
+
+    // Storing filter values ahead of time to reduce function calls
+    // and improve temporal locality
+    int filterValues[3][3];
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            filterValues[i][j] = filter->get(i, j); // Using inline function filter->get()
+        }
+    }
+  
+    // Computing the divisor once outside the loop to avoid redundant computations
+    int filterDivisor = filter->getDivisor(); // Using inline function filter->getDivisor()
+
+    // Changing loop order to row-major for improving spatial locality and cache efficiency
+    for (int row = 1; row < input->height - 1; row++) {
+        for (int col = 1; col < input->width - 1; col++) {
+            for (int plane = 0; plane < 3; plane++) {
+                int sum = 0; // Using a single accumulator here, but you could split into multiple if needed
+
+                // Unrolled loop for applying the 3x3 filter
+                for (int i = 0; i < 3; i++) {
+                    for (int j = 0; j < 3; j++) {
+                        sum += input->color[plane][row + i - 1][col + j - 1] * filterValues[i][j];
+                    }
+                }
+
+                // Applying the clamp function once per pixel after summing
+                // to reduce conditional branching inside the loop
+                output->color[plane][row][col] = clamp(sum / filterDivisor); // Using inline function clamp()
+            }
+        }
+    }
+
+    cycStop = rdtscll();
+    double diff = cycStop - cycStart;
+    double diffPerPixel = diff / (output->width * output->height);
+    fprintf(stderr, "Took %f cycles to process, or %f cycles per pixel\n",
+            diff, diff / (output->width * output->height));
+    return diffPerPixel;
+}
+
+

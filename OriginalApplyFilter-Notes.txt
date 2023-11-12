@@ -1,0 +1,48 @@
+double
+applyFilter(class Filter *filter, cs1300bmp *input, cs1300bmp *output)
+{
+
+  long long cycStart, cycStop;
+
+  cycStart = rdtscll(); // starts recording cycles
+
+  output -> width = input -> width; // set output to match input
+  output -> height = input -> height; // set output to match input
+
+
+  for(int col = 1; col < (input -> width) - 1; col = col + 1) { // iterate across pixels
+    for(int row = 1; row < (input -> height) - 1 ; row = row + 1) { // iterate down pixels
+      for(int plane = 0; plane < 3; plane++) { // iterate RGB (0, 1, 2)
+
+	output -> color[plane][row][col] = 0; // initialize output pixel val to 0
+
+	for (int j = 0; j < filter -> getSize(); j++) { // iterate filter matrix
+	  for (int i = 0; i < filter -> getSize(); i++) {	// iterate filter matrix
+	    output -> color[plane][row][col] 
+	      = output -> color[plane][row][col]
+	      + (input -> color[plane][row + i - 1][col + j - 1] 
+		 * filter -> get(i, j) ); // current pixel updated to product of input pixel RGB val and filter val
+	  }
+	}
+	
+	output -> color[plane][row][col] = 	
+	  output -> color[plane][row][col] / filter -> getDivisor(); // normalize output val
+
+	if ( output -> color[plane][row][col]  < 0 ) {
+	  output -> color[plane][row][col] = 0; // check that RGB val min 0
+	}
+
+	if ( output -> color[plane][row][col]  > 255 ) { 
+	  output -> color[plane][row][col] = 255; // check that RGB val max 255
+	}
+      }
+    }
+  }
+
+  cycStop = rdtscll();
+  double diff = cycStop - cycStart;
+  double diffPerPixel = diff / (output -> width * output -> height);
+  fprintf(stderr, "Took %f cycles to process, or %f cycles per pixel\n",
+	  diff, diff / (output -> width * output -> height));
+  return diffPerPixel;
+}
