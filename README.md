@@ -1,7 +1,7 @@
 # Summary of PerfLab
 
 **Focus:** 
-This lab focuses on optimizing a memory-intensive image processing application. The primary goal is to improve the performance of an image processing routine, potentially achieving a speed increase by a factor of 25 or more. It was originally assigned as a class project for CSCI 2400 - Computer Systems.
+This lab focuses on optimizing a memory-intensive image processing application. The primary goal is to improve the performance of an image processing routine, potentially achieving a speed increase by a factor of 25 or more. It was originally assigned as a class project for CSPB 2400 - Computer Systems.
 
 **Key Skills Developed:**
 - Proficiency in optimizing code for better performance, particularly in image processing applications.
