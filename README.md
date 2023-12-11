@@ -1,3 +1,29 @@
+# Summary of PerfLab
+
+**Focus:** 
+This lab focuses on optimizing a memory-intensive image processing application. The primary goal is to improve the performance of an image processing routine, potentially achieving a speed increase by a factor of 25 or more. It was originally assigned as a class project for CSCI 2400 - Computer Systems.
+
+**Key Skills Developed:**
+- Proficiency in optimizing code for better performance, particularly in image processing applications.
+- Understanding and applying optimization techniques to reduce CPU cycles per element (CPE) in processing.
+- Gaining insights into SIMD extensions, OpenMP, and OpenCV for advanced optimization.
+
+**Project Structure:**
+- The main task involves modifying the image processing routine in the provided application.
+- The application uses a `Filter` class for applying filters to images, represented as three-dimensional arrays.
+
+**Assignment Highlights:**
+- The routine to be optimized involves nested `for` loops for applying convolution filters to images.
+- Performance is measured in CPU cycles using the `rdtscll` function, with the goal to minimize the cycles per pixel.
+- The application supports various filters and images, with a focus on optimizing for specific test cases.
+
+**Learning Insights:**
+- Encourages exploring different optimization strategies, including modifying data structures and algorithmic improvements.
+- Provides an opportunity to experiment with compiler options and advanced optimization techniques like SIMD and OpenMP.
+- Emphasizes the importance of maintaining correctness while optimizing for performance.
+
+**Below are the original assignment instructions, unaltered.**
+
 # Lab 4 - Code Optimization
 ## Introduction
 This assignment deals with optimizing memory intensive code. Image processing offers many examples of functions that can benefit from optimization. In this lab, you’ll be improving the overall performance of an “image processing” application by a factor of about 25 – an extra credit phase will challenge you do increase the speed further. In the past, some students have sped up the code by a factor of 200-300. The score you receive for the "performance" portion of the lab depends on the score returned by the **Judge** script with the filters for the default image (blocks-small.bmp). Your code **must** function correctly for each filter and can be tested using `make test`
